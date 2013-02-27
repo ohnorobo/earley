@@ -6,11 +6,12 @@ import sys, string, re, pprint, random
 #rules are of the format
 #LHS : [(RHS1, w1),  (RHS2, w2) ...]
 rules = {}
-
+total_weights = {}
 
 
 def parse_grammar_file(filename):
     global rules
+    global total_weights
     f = open(filename, 'r')
     for line in f:
         if (line[0] != "#" and (not re.match(line.strip(), '\s'))):
@@ -21,15 +22,17 @@ def parse_grammar_file(filename):
             #print "###" + line
 
             split = line.strip().split()
-            weight = split[0]
+            weight = int(split[0])
             LHS = split[1]
             RHS = split[2:]
 
             #rules[LHS] = RHS
             if LHS in rules:
                 rules[LHS].append((RHS, weight))
+                total_weights[LHS] += weight
             else:
                 rules[LHS] = [(RHS, weight)]
+                total_weights[LHS] = weight
 
 
 #for all non-comment non-empty lines parse as
@@ -80,6 +83,7 @@ parse_grammar_file(grammar_filename)
 
 print "# rules"
 pprint.pprint( rules )
+pprint.pprint( total_weights )
 
 for i in range(int(number_of_words)):
     sentence = create_sentence()
