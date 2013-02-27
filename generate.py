@@ -1,13 +1,10 @@
 #!/usr/bin/python
 
-import sys
-import re
-import pprint
-import random
+import sys, string, re, pprint, random
 
 
 #rules are of the format
-#LHS : [RHS1 RHS2 ...]
+#LHS : [(RHS1, w1),  (RHS2, w2) ...]
 rules = {}
 
 
@@ -30,9 +27,9 @@ def parse_grammar_file(filename):
 
             #rules[LHS] = RHS
             if LHS in rules:
-                rules[LHS].append(RHS)
+                rules[LHS].append((RHS, weight))
             else:
-                rules[LHS] = [RHS]
+                rules[LHS] = [(RHS, weight)]
 
 
 #for all non-comment non-empty lines parse as
@@ -41,33 +38,31 @@ def parse_grammar_file(filename):
 
 
 #creates a new sentence using rewrites
-def create_sentences(n):
+def create_sentence():
     return flatten(rewrite_node("ROOT"))
 
 
 #takes a list of terminals/nonterminals
 #and rewrites them as far down as possible
 def rewrite_node(node):
-    print "## " + "rewriting sentence " + str(node)
+    #print "## " + "rewriting sentence " + str(node)
     #for i in range(len(sentence)):
 
     #node = sentence[i]
     if node in rules.keys(): #nonterminal
-        print "## node " + node
-        rewrite = random.choice(rules[node])
-        print "## rewriting " + node + " to " + str(rewrite)
+        #print "## node " + node
+        rewrite = random.choice(rules[node])[0]
+        #print "## rewriting " + node + " to " + str(rewrite)
 
         filtered =  map(rewrite_node, rewrite)
-        print "### filtered:"
-        pprint.pprint( filtered)
+        #print "### filtered:"
+        #pprint.pprint( filtered)
         return filtered
     else: #terminal
-        print "## terminal " + node
+        #print "## terminal " + node
         return node
 
-#make sure "NP" isn't being parsed into chars
 
-#def contains_nonterminals()
 
 #http://caolanmcmahon.com/posts/flatten_for_python/
 #turn an arbitrarily nested list into a linear one
@@ -86,6 +81,7 @@ parse_grammar_file(grammar_filename)
 print "# rules"
 pprint.pprint( rules )
 
-sentence = create_sentences(number_of_words)
-print "\n# sentence"
-pprint.pprint( sentence )
+for i in range(int(number_of_words)):
+    sentence = create_sentence()
+    #print "\n# sentence"
+    pprint.pprint( string.join(sentence, " ") )
