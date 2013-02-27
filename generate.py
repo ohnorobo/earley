@@ -54,7 +54,8 @@ def rewrite_node(node):
     #node = sentence[i]
     if node in rules.keys(): #nonterminal
         #print "## node " + node
-        rewrite = random.choice(rules[node])[0]
+        #rewrite = random.choice(rules[node])[0]
+        rewrite = choose_probabilistic(rules[node])
         #print "## rewriting " + node + " to " + str(rewrite)
 
         filtered =  map(rewrite_node, rewrite)
@@ -72,6 +73,27 @@ def rewrite_node(node):
 def flatten(l):
     return reduce(lambda x,y: x+[y] if type(y) != list else x+flatten(y), l,[])
 
+#list if a list of (item, weight)
+def choose_probabilistic(list):
+    weights = [x[1] for x in list]
+    i = get_random_weighted_index(weights)
+    return list[i][0]
+
+#http://eli.thegreenplace.net/2010/01/22/weighted-random-generation-in-python/
+#returns an index of the weighted list with prob of each choice = weight/total
+def get_random_weighted_index(weights):
+    totals = []
+    running_total = 0
+
+    for w in weights:
+        running_total += w
+        totals.append(running_total)
+
+    rnd = random.random() * running_total
+    for i, total in enumerate(totals):
+        if rnd < total:
+            print "###" +  str(i)
+            return i
 
 ############
 ##main
