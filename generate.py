@@ -22,7 +22,7 @@ def parse_grammar_file(filename):
             #print "###" + line
 
             split = line.strip().split()
-            weight = int(split[0])
+            weight = float(split[0])
             LHS = split[1]
             RHS = split[2:]
 
@@ -42,7 +42,9 @@ def parse_grammar_file(filename):
 
 #creates a new sentence using rewrites
 def create_sentence():
-    return flatten(rewrite_node("ROOT"))
+    sentence = rewrite_node("ROOT")
+    pprint.pprint(sentence)
+    return flatten(sentence)
 
 
 #takes a list of terminals/nonterminals
@@ -56,7 +58,7 @@ def rewrite_node(node):
         #print "## node " + node
         #rewrite = random.choice(rules[node])[0]
         rewrite = choose_probabilistic(rules[node])
-        #print "## rewriting " + node + " to " + str(rewrite)
+        print "## rewriting " + node + " to " + str(rewrite)
 
         filtered =  map(rewrite_node, rewrite)
         #print "### filtered:"
@@ -92,7 +94,6 @@ def get_random_weighted_index(weights):
     rnd = random.random() * running_total
     for i, total in enumerate(totals):
         if rnd < total:
-            print "###" +  str(i)
             return i
 
 ############
@@ -103,9 +104,9 @@ number_of_words = sys.argv[2]
 
 parse_grammar_file(grammar_filename)
 
-print "# rules"
-pprint.pprint( rules )
-pprint.pprint( total_weights )
+#print "# rules"
+#pprint.pprint( rules )
+#pprint.pprint( total_weights )
 
 for i in range(int(number_of_words)):
     sentence = create_sentence()
