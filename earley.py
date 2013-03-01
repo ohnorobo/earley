@@ -69,6 +69,9 @@ class Rule:
     #does the given symbol match the symbol we're looking for?
     #boolean
     def can_scan(self, symbol):
+        #if not self.is_complete():
+        #    return false
+        #else:
         return symbol == self.RHS[self.index]
 
     #get the symbol we want to scan next
@@ -115,7 +118,7 @@ def scan(word, column_number):
     #if any match word increment the rule and place it in the next column
     #must scan over all rules evan after a match because lexical ambiguity
     for rule in parse_table[column_number]:
-        if (rule.can_scan(word)):
+        if (not rule.is_complete() and rule.can_scan(word)):
             new_rule = rule.get_moved_rule()
             ##parse_table[column_number+1].append(new_rule)
             add_rule_to_parse_table(new_rule, column_number+1)
