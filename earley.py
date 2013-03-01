@@ -42,6 +42,11 @@ class Rule:
         return "<"+str(self.start)+" "+self.LHS+":"+str(self.RHS)+" "+ str(self.index)+">"
 
 
+    #get the column number this rule started in
+    #int
+    def get_start_column_number(self):
+        return self.start
+
     #get a new rule like this one but iterated by one
     #Rule
     def get_moved_rule(self):
@@ -120,14 +125,19 @@ def scan(word, column_number):
 # and add their expansions to the column
 def predict_entire_column(column):
     unchecked_rules = copy.deepcopy(column)
+    pprint.pprint("unchecked: " + str(unchecked_rules))
+    pprint.pprint("column: " + str(column))
 
     while(len(unchecked_rules) != 0):
-        pprint.pprint("unchecked: " + str(unchecked_rules))
 
-        new_rules = predict(unchecked_rules[0], column)
+        if (not unchecked_rules[0].is_complete()):
+            new_rules = predict(unchecked_rules[0], column)
+
+            print "### new_rules: " + str(new_rules)
+            unchecked_rules = unchecked_rules + new_rules
 
         unchecked_rules = unchecked_rules[1:]
-        unchecked_rules + new_rules
+        pprint.pprint("unchecked: " + str(unchecked_rules))
 
 
 #return true if we add rules
@@ -145,6 +155,7 @@ def predict(rule, column):
             if (not rule in column):
                 column.append(rule)
                 added_rules.append(rule)
+
     return added_rules
 
 
@@ -163,8 +174,8 @@ def get_all_rules_starting_with(symbol):
 def attach(completed_rule, column_number):
     global parse_table
 
-    completed_symbol = completed_rule
-    started = rule.get_start()
+    completed_symbol = completed_rule.get_LHS()
+    started = completed_rule.get_start_column_number()
 
     #for the column this rule started in
     column = parse_table[started]
@@ -172,7 +183,7 @@ def attach(completed_rule, column_number):
     for rule in column:
         if (rule.can_scan(completed_symbol)):
             #add the moved rule to the column completed_rule ended in
-            parse_table[column_number] = rule.get_moved_rule()
+            add_rule_to_parse_table(rule.get_moved_rule(), column_number)
 
 def attach_all_completed_rules(column_number):
     global parse_table
@@ -197,7 +208,7 @@ def earley(sentence):
     while column_number < len(parse_table):
     #will if be a problem if we add cols as we do this loop?
 
-        print "start loop"
+        print "start loop" + str(column_number)
         print_parse_table()
 
         #attach any completed rules backwards
