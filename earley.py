@@ -200,7 +200,7 @@ def attach(completed_rule, column_number):
     column = parse_table[started]
 
     for rule in column:
-        if (rule.can_scan(completed_symbol)):
+        if (not rule.is_complete() and rule.can_scan(completed_symbol)):
             #add the moved rule to the column completed_rule ended in
             add_rule_to_parse_table(rule.get_moved_rule(), column_number)
 
@@ -244,14 +244,17 @@ def earley(sentence):
         print_parse_table()
 
         #scan column and start filling out next one
-        scan(sentence[column_number], column_number)
+        if (column_number < len(sentence)): #if there's more sentence to scan
+            scan(sentence[column_number], column_number)
 
-        print "scan"
-        print_parse_table()
+            print "scan"
+            print_parse_table()
 
         column_number += 1 #increment
 
     #if Root is complete end
+    print "END"
+    return parse_table[-1][-1].is_complete() #TODO and it's root
 
 
 def print_parse_table():
