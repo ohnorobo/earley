@@ -47,6 +47,10 @@ class Rule:
     def get_start_column_number(self):
         return self.start
 
+    #set the start number
+    def set_start(self, n):
+        self.start = n
+
     #get a new rule like this one but iterated by one
     #Rule
     def get_moved_rule(self):
@@ -123,7 +127,10 @@ def scan(word, column_number):
 # check every rule in a column
 # (including rules added while running this method)
 # and add their expansions to the column
-def predict_entire_column(column):
+def predict_entire_column(column_number):
+    global parse_table
+    column = parse_table[column_number]
+
     unchecked_rules = copy.deepcopy(column)
     pprint.pprint("unchecked: " + str(unchecked_rules))
     pprint.pprint("column: " + str(column))
@@ -131,7 +138,7 @@ def predict_entire_column(column):
     while(len(unchecked_rules) != 0):
 
         if (not unchecked_rules[0].is_complete()):
-            new_rules = predict(unchecked_rules[0], column)
+            new_rules = predict(unchecked_rules[0], column_number)
 
             print "### new_rules: " + str(new_rules)
             unchecked_rules = unchecked_rules + new_rules
@@ -142,12 +149,15 @@ def predict_entire_column(column):
 
 #return true if we add rules
 #return false if we add no rules
-def predict(rule, column):
+def predict(rule, column_number):
+    global parse_table
+
     added_rules = []
     next_symbol = rule.get_next_scan_symbol()
+    column = parse_table[column_number]
 
     if (not column_already_contains_LHS(next_symbol, column)):
-        rules = get_all_rules_starting_with(next_symbol)
+        rules = get_all_rules_starting_with(next_symbol, column_number)
 
         print "### rules " + str(rules)
 
@@ -163,9 +173,15 @@ def column_already_contains_LHS(LHS, column):
     return LHS in map(lambda x: x.get_LHS(), column)
 
 
-def get_all_rules_starting_with(symbol):
+#symbol rules must start with
+#column_number - column this rule will start in
+def get_all_rules_starting_with(symbol, column_number):
     global rule_table
-    return filter(lambda x: x.matches_start_symbol(symbol), rule_table)
+    rules = filter(lambda x: x.matches_start_symbol(symbol), rule_table)
+    for rule in rules:
+        rule.set_start(column_number)
+    return rules
+
 
 
 #############################
@@ -219,7 +235,7 @@ def earley(sentence):
         print_parse_table()
 
         #fully predict column
-        predict_entire_column(parse_table[column_number])
+        predict_entire_column(column_number)
 
         print "predict:"
         print_parse_table()
