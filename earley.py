@@ -29,6 +29,9 @@ class Rule:
     def __repr__(self):
         return "<"+str(self.start)+" "+self.LHS+":"+str(self.RHS)+" "+ str(self.index)+">"
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
 
     #get the column number this rule started in
     #int
@@ -92,6 +95,7 @@ class Rule:
 parse_table = []
 
 #list of rules
+'''
 rule_table = [
     Rule(0, "ROOT", ["S"], 0),
     Rule(0, "S", ["NP", "V"], 0),
@@ -103,8 +107,31 @@ rule_table = [
     Rule(0, "V", ["eats"], 0),
     Rule(0, "V", ["cries"], 0)
     ]
+'''
+
+rule_table = [
+    Rule(0, "ROOT", ["S"], 0),
+    Rule(0, "S", ["NP", "VP"], 0),
+    Rule(0, "NP", ["Det", "N"], 0),
+    Rule(0, "NP", ["NP", "PP"], 0),
+    Rule(0, "VP", ["V", "NP"], 0),
+    Rule(0, "VP", ["VP", "PP"], 0),
+    Rule(0, "PP", ["P", "NP"], 0),
+
+    Rule(0, "NP", ["Papa"], 0),
+    Rule(0, "N", ["caviar"], 0),
+    Rule(0, "N", ["spoon"], 0),
+    Rule(0, "V", ["ate"], 0),
+    Rule(0, "P", ["with"], 0),
+    Rule(0, "Det", ["the"], 0),
+    Rule(0, "Det", ["a"], 0)
+    ]
+
+
+
 
 #left corner
+#TODO
 
 
 #############################
@@ -158,9 +185,9 @@ def predict(rule, column_number):
     next_symbol = rule.get_next_scan_symbol()
     column = parse_table[column_number]
 
-    print "trying to add rules for " + next_symbol
+    #print "trying to add rules for " + next_symbol
     if (not column_already_contains_LHS(next_symbol, column)):
-        print "success"
+        #print "success"
         rules = get_all_rules_starting_with(next_symbol, column_number)
 
         #print "### rules " + str(rules)
@@ -177,12 +204,12 @@ def predict(rule, column_number):
 #and its index is 0 (ie it was started in this column)
 def column_already_contains_LHS(LHS, column):
     new_rules = filter(lambda x: x.is_not_started(), column)
-    print "filter" + str(new_rules)
+    #print "filter" + str(new_rules)
     return LHS in map(lambda x: x.get_LHS(), new_rules)
 
 
 #symbol rules must start with
-#column_number - column this rule will start in
+#column_number is the column this rule will start in
 def get_all_rules_starting_with(symbol, column_number):
     global rule_table
     rules = filter(lambda x: x.matches_start_symbol(symbol), rule_table)
@@ -233,8 +260,8 @@ def earley(sentence):
     while column_number < len(parse_table):
     #will if be a problem if we add cols as we do this loop?
 
+        print "##"
         print "start loop" + str(column_number)
-        print_parse_table()
 
         #attach any completed rules backwards
         attach_all_completed_rules(column_number)
@@ -261,7 +288,13 @@ def earley(sentence):
     #if Root is complete end
     print "END"
     print str(sentence)
-    return parse_table[-1][-1].is_complete() #TODO and it's root
+    return parse_table_complete(parse_table)
+
+
+#was this parse table finished successfully
+#ie "0 Root -> S." is in the last column
+def parse_table_complete(parse_table):
+    return Rule(0, "ROOT", ["S"], 1) in parse_table[-1]
 
 
 def print_parse_table():
@@ -283,6 +316,7 @@ def add_rule_to_parse_table(rule, column_number):
 
 
 #test
+'''
 print earley(["Jane","eats"])
 print "#######\n"
 print earley(["Jane","eats","Jane"])
@@ -293,3 +327,12 @@ print earley(["silly", "Jane","eats","Jane"])
 print "#######\n"
 print earley(["Jane", "silly","eats","Jane"])
 print "#######\n"
+'''
+
+print earley(["Papa", "ate", "the", "caviar", "with", "the", "spoon"])
+print "#######\n"
+
+
+
+
+
