@@ -2,18 +2,6 @@
 import pprint
 import copy
 
-#############################
-
-#TODO unused
-#sentence is a list of strings
-def parse(sentence):
-
-    #start column 1
-    column = []
-
-    #add root node
-    column.append(Rule(0, "Root", ["S"]))
-
 
 #############################
 
@@ -90,6 +78,11 @@ class Rule:
     def is_complete(self):
         return self.index == len(self.RHS)
 
+    #returns true of this rule hasn't been started
+    #boolean
+    def is_not_started(self):
+        return self.index == 0
+
 
 
 #############################
@@ -101,11 +94,17 @@ parse_table = []
 #list of rules
 rule_table = [
     Rule(0, "ROOT", ["S"], 0),
-    Rule(0, "S", ["NP", "VP"], 0),
+    Rule(0, "S", ["NP", "V"], 0),
+    Rule(0, "VP", ["V", "NP"], 0),
+    Rule(0, "NP", ["ADJ", "NP"],0),
+
     Rule(0, "NP", ["Jane"], 0),
-    Rule(0, "VP", ["eats"], 0)
+    Rule(0, "ADJ", ["silly"], 0),
+    Rule(0, "V", ["eats"], 0),
+    Rule(0, "V", ["cries"], 0)
     ]
 
+#left corner
 
 
 #############################
@@ -135,19 +134,19 @@ def predict_entire_column(column_number):
     column = parse_table[column_number]
 
     unchecked_rules = copy.deepcopy(column)
-    pprint.pprint("unchecked: " + str(unchecked_rules))
-    pprint.pprint("column: " + str(column))
+    #pprint.pprint("unchecked: " + str(unchecked_rules))
+    #pprint.pprint("column: " + str(column))
 
     while(len(unchecked_rules) != 0):
 
         if (not unchecked_rules[0].is_complete()):
             new_rules = predict(unchecked_rules[0], column_number)
 
-            print "### new_rules: " + str(new_rules)
+            #print "### new_rules: " + str(new_rules)
             unchecked_rules = unchecked_rules + new_rules
 
         unchecked_rules = unchecked_rules[1:]
-        pprint.pprint("unchecked: " + str(unchecked_rules))
+        #pprint.pprint("unchecked: " + str(unchecked_rules))
 
 
 #return true if we add rules
@@ -159,10 +158,12 @@ def predict(rule, column_number):
     next_symbol = rule.get_next_scan_symbol()
     column = parse_table[column_number]
 
+    print "trying to add rules for " + next_symbol
     if (not column_already_contains_LHS(next_symbol, column)):
+        print "success"
         rules = get_all_rules_starting_with(next_symbol, column_number)
 
-        print "### rules " + str(rules)
+        #print "### rules " + str(rules)
 
         for rule in rules:
             if (not rule in column):
@@ -172,8 +173,12 @@ def predict(rule, column_number):
     return added_rules
 
 
+#only returns true if a column already has a rule with this start symbol,
+#and its index is 0 (ie it was started in this column)
 def column_already_contains_LHS(LHS, column):
-    return LHS in map(lambda x: x.get_LHS(), column)
+    new_rules = filter(lambda x: x.is_not_started(), column)
+    print "filter" + str(new_rules)
+    return LHS in map(lambda x: x.get_LHS(), new_rules)
 
 
 #symbol rules must start with
@@ -216,6 +221,7 @@ def attach_all_completed_rules(column_number):
 
 def earley(sentence):
     global parse_table
+    parse_table = []
 
     #add root symbol
     root_rule = Rule(0, "ROOT", ["S"], 0)
@@ -254,6 +260,7 @@ def earley(sentence):
 
     #if Root is complete end
     print "END"
+    print str(sentence)
     return parse_table[-1][-1].is_complete() #TODO and it's root
 
 
@@ -277,3 +284,12 @@ def add_rule_to_parse_table(rule, column_number):
 
 #test
 print earley(["Jane","eats"])
+print "#######\n"
+print earley(["Jane","eats","Jane"])
+print "#######\n"
+print earley(["Jane"])
+print "#######\n"
+print earley(["silly", "Jane","eats","Jane"])
+print "#######\n"
+print earley(["Jane", "silly","eats","Jane"])
+print "#######\n"
