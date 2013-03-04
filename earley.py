@@ -7,20 +7,19 @@ import copy
 
 
 class Rule:
-    #where this rule started to apply
-    #start = 0
-    #one string, left hand side of this rule
-    #LHS
-    #list of strings, expansion of the left hand side
-    #RHS
-    #index of our position in the rule
-    #index
 
+    # a rule of the form
+    # N LHS -> RHS M
+    # ex:  0, S -> NP VP, 1
 
     def __init__(self, start, LHS, RHS, index):
+        #where this rule started to apply
         self.start = start
+        #one string, left hand side of this rule
         self.LHS = LHS
+        #list of strings, expansion of the left hand side
         self.RHS = RHS
+        #index of our position in the rule
         self.index = index
 
     def __str__(self):
@@ -131,7 +130,21 @@ rule_table = [
 
 
 #left corner
-#TODO
+#TODO- generate this from rules
+#map of symbols -> list of potential terminals that they can start with
+# NP -> ["the", "a", "Papa"]
+# PP -> ["in", "with"]
+left_corner = {
+    "ROOT" : ["Papa", "the", "a", "caviar", "spoon"],
+    "S" :  ["Papa", "the", "a", "caviar", "spoon"],
+    "NP" : ["Papa", "the", "a", "caviar", "spoon"],
+    "VP" : ["ate"],
+    "PP" : ["with"],
+    "N" : ["Papa", "caviar", "spoon"],
+    "V" : ["ate"],
+    "P" : ["with"],
+    "Det" : ["the", "a"]
+    }
 
 
 #############################
@@ -156,7 +169,7 @@ def scan(word, column_number):
 # check every rule in a column
 # (including rules added while running this method)
 # and add their expansions to the column
-def predict_entire_column(column_number):
+def predict_entire_column(column_number, sentence):
     global parse_table
     column = parse_table[column_number]
 
@@ -167,7 +180,7 @@ def predict_entire_column(column_number):
     while(len(unchecked_rules) != 0):
 
         if (not unchecked_rules[0].is_complete()):
-            new_rules = predict(unchecked_rules[0], column_number)
+            new_rules = predict(unchecked_rules[0], column_number, sentence)
 
             #print "### new_rules: " + str(new_rules)
             unchecked_rules = unchecked_rules + new_rules
@@ -178,7 +191,7 @@ def predict_entire_column(column_number):
 
 #return true if we add rules
 #return false if we add no rules
-def predict(rule, column_number):
+def predict(rule, column_number, sentence):
     global parse_table
 
     added_rules = []
@@ -193,7 +206,9 @@ def predict(rule, column_number):
         #print "### rules " + str(rules)
 
         for rule in rules:
-            if (not rule in column):
+            if (not rule in column
+                and matches_left_corner(column_number, rule, sentence)):
+
                 column.append(rule)
                 added_rules.append(rule)
 
@@ -217,6 +232,15 @@ def get_all_rules_starting_with(symbol, column_number):
         rule.set_start(column_number)
     return rules
 
+
+#true if the left-corner set for this rule matches the next word in the sentence
+def matches_left_corner(column_num, rule, sentence):
+    if (column_num > len(sentence)-1):
+        return False #no further prediction is sentence is over
+    else:
+        lookahead_word = sentence[column_num]
+        symbol = rule.get_LHS()
+        return lookahead_word in left_corner[symbol]
 
 
 #############################
@@ -271,7 +295,7 @@ def earley(sentence):
         print_parse_table()
 
         #fully predict column
-        predict_entire_column(column_number)
+        predict_entire_column(column_number, sentence)
 
         print "predict:"
         print_parse_table()
