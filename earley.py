@@ -88,10 +88,221 @@ class Rule:
 
 
 #############################
+class EarleyParser():
+
+    def __init__(self, rules):
+        #table for parsing a sentence
+        self.parse_table = []
+
+        #list of rules
+        self.rule_table = rules
+
+        #left corner
+        #TODO- generate this from rules
+        #map of symbols -> list of potential terminals that they can start with
+        # NP -> ["the", "a", "Papa"]
+        # PP -> ["in", "with"]
+        self.left_corner = {
+            "ROOT" : ["Papa", "the", "a", "caviar", "spoon"],
+            "S" :  ["Papa", "the", "a", "caviar", "spoon"],
+            "NP" : ["Papa", "the", "a", "caviar", "spoon"],
+            "VP" : ["ate"],
+            "PP" : ["with"],
+            "N" : ["Papa", "caviar", "spoon"],
+            "V" : ["ate"],
+            "P" : ["with"],
+            "Det" : ["the", "a"]
+            }
 
 
-#table for parsing a sentence
-parse_table = []
+    #############################
+
+
+    #scan entire table
+    def scan(self, word, column_number):
+        #scan over all next-symbols in column
+        #if any match word increment the rule and place it in the next column
+        #must scan over all rules evan after a match because lexical ambiguity
+        for rule in self.parse_table[column_number]:
+            if (not rule.is_complete() and rule.can_scan(word)):
+                new_rule = rule.get_moved_rule()
+                self.add_rule_to_parse_table(new_rule, column_number+1)
+
+
+
+    #############################
+
+    # check every rule in a column
+    # (including rules added while running this method)
+    # and add their expansions to the column
+    def predict_entire_column(self, column_number, sentence):
+        column = self.parse_table[column_number]
+
+        unchecked_rules = copy.deepcopy(column)
+        #pprint.pprint("unchecked: " + str(unchecked_rules))
+        #pprint.pprint("column: " + str(column))
+
+        while(len(unchecked_rules) != 0):
+
+            if (not unchecked_rules[0].is_complete()):
+                new_rules = self.predict(unchecked_rules[0], column_number, sentence)
+
+                #print "### new_rules: " + str(new_rules)
+                unchecked_rules = unchecked_rules + new_rules
+
+            unchecked_rules = unchecked_rules[1:]
+            #pprint.pprint("unchecked: " + str(unchecked_rules))
+
+
+    #return true if we add rules
+    #return false if we add no rules
+    def predict(self, rule, column_number, sentence):
+
+        added_rules = []
+        next_symbol = rule.get_next_scan_symbol()
+        column = self.parse_table[column_number]
+
+        #print "trying to add rules for " + next_symbol
+        if (not self.column_already_contains_LHS(next_symbol, column)):
+            #print "success"
+            rules = self.get_all_rules_starting_with(next_symbol, column_number)
+
+            #print "### rules " + str(rules)
+
+            for rule in rules:
+                if (not rule in column
+                    and self.matches_left_corner(column_number, rule, sentence)):
+
+                    column.append(rule)
+                    added_rules.append(rule)
+
+        return added_rules
+
+
+    #only returns true if a column already has a rule with this start symbol,
+    #and its index is 0 (ie it was started in this column)
+    def column_already_contains_LHS(self, LHS, column):
+        new_rules = filter(lambda x: x.is_not_started(), column)
+        #print "filter" + str(new_rules)
+        return LHS in map(lambda x: x.get_LHS(), new_rules)
+
+
+    #symbol rules must start with
+    #column_number is the column this rule will start in
+    def get_all_rules_starting_with(self, symbol, column_number):
+        rules = filter(lambda x: x.matches_start_symbol(symbol), self.rule_table)
+        for rule in rules:
+            rule.set_start(column_number)
+        return rules
+
+
+    #true if the left-corner set for this rule matches the next word in the sentence
+    def matches_left_corner(self, column_num, rule, sentence):
+        if (column_num > len(sentence)-1):
+            return False #no further prediction is sentence is over
+        else:
+            lookahead_word = sentence[column_num]
+            symbol = rule.get_LHS()
+            return lookahead_word in self.left_corner[symbol]
+
+
+    #############################
+
+
+    def attach(self, completed_rule, column_number):
+
+        completed_symbol = completed_rule.get_LHS()
+        started = completed_rule.get_start_column_number()
+
+        #for the column this rule started in
+        column = self.parse_table[started]
+
+        for rule in column:
+            if (not rule.is_complete() and rule.can_scan(completed_symbol)):
+                #add the moved rule to the column completed_rule ended in
+                self.add_rule_to_parse_table(rule.get_moved_rule(), column_number)
+
+    def attach_all_completed_rules(self, column_number):
+        for rule in self.parse_table[column_number]:
+            if rule.is_complete():
+                self.attach(rule, column_number)
+
+
+    #############################
+
+
+    def parse(self, sentence):
+        self.parse_table = []
+
+        #add root symbol
+        root_rule = Rule(0, "ROOT", ["S"], 0)
+        self.add_rule_to_parse_table(root_rule, 0)
+
+        column_number = 0
+
+        #for each column
+        while column_number < len(self.parse_table):
+        #will if be a problem if we add cols as we do this loop?
+
+            print "##"
+            print "start loop" + str(column_number)
+
+            #attach any completed rules backwards
+            self.attach_all_completed_rules(column_number)
+                #and check if those rules complete, attach etc.
+
+            print "attach:"
+            self.print_parse_table()
+
+            #fully predict column
+            self.predict_entire_column(column_number, sentence)
+
+            print "predict:"
+            self.print_parse_table()
+
+            #scan column and start filling out next one
+            if (column_number < len(sentence)): #if there's more sentence to scan
+                self.scan(sentence[column_number], column_number)
+
+                print "scan"
+                self.print_parse_table()
+
+            column_number += 1 #increment
+
+        #if Root is complete end
+        print "END"
+        print str(sentence)
+        return self.parse_table_complete()
+
+
+    #was this parse table finished successfully
+    #ie "0 Root -> S." is in the last column
+    def parse_table_complete(self):
+        return Rule(0, "ROOT", ["S"], 1) in self.parse_table[-1]
+
+
+    def print_parse_table(self):
+
+        print "####"
+        pprint.pprint(self.parse_table)
+        print ""
+
+
+
+    def add_rule_to_parse_table(self, rule, column_number):
+        if len(self.parse_table) > column_number:
+            self.parse_table[column_number].append(rule)
+        elif len(self.parse_table) == column_number:
+            self.parse_table.append([rule])
+        else:
+            print "### trying to add to a column out of range " + str(column_number)
+
+
+
+#########################################
+#test
+
+
 
 #list of rules
 '''
@@ -127,219 +338,9 @@ rule_table = [
     ]
 
 
+earley = EarleyParser(rule_table)
 
 
-#left corner
-#TODO- generate this from rules
-#map of symbols -> list of potential terminals that they can start with
-# NP -> ["the", "a", "Papa"]
-# PP -> ["in", "with"]
-left_corner = {
-    "ROOT" : ["Papa", "the", "a", "caviar", "spoon"],
-    "S" :  ["Papa", "the", "a", "caviar", "spoon"],
-    "NP" : ["Papa", "the", "a", "caviar", "spoon"],
-    "VP" : ["ate"],
-    "PP" : ["with"],
-    "N" : ["Papa", "caviar", "spoon"],
-    "V" : ["ate"],
-    "P" : ["with"],
-    "Det" : ["the", "a"]
-    }
-
-
-#############################
-
-
-#scan entire table
-def scan(word, column_number):
-    global parse_table
-    #scan over all next-symbols in column
-    #if any match word increment the rule and place it in the next column
-    #must scan over all rules evan after a match because lexical ambiguity
-    for rule in parse_table[column_number]:
-        if (not rule.is_complete() and rule.can_scan(word)):
-            new_rule = rule.get_moved_rule()
-            ##parse_table[column_number+1].append(new_rule)
-            add_rule_to_parse_table(new_rule, column_number+1)
-
-
-
-#############################
-
-# check every rule in a column
-# (including rules added while running this method)
-# and add their expansions to the column
-def predict_entire_column(column_number, sentence):
-    global parse_table
-    column = parse_table[column_number]
-
-    unchecked_rules = copy.deepcopy(column)
-    #pprint.pprint("unchecked: " + str(unchecked_rules))
-    #pprint.pprint("column: " + str(column))
-
-    while(len(unchecked_rules) != 0):
-
-        if (not unchecked_rules[0].is_complete()):
-            new_rules = predict(unchecked_rules[0], column_number, sentence)
-
-            #print "### new_rules: " + str(new_rules)
-            unchecked_rules = unchecked_rules + new_rules
-
-        unchecked_rules = unchecked_rules[1:]
-        #pprint.pprint("unchecked: " + str(unchecked_rules))
-
-
-#return true if we add rules
-#return false if we add no rules
-def predict(rule, column_number, sentence):
-    global parse_table
-
-    added_rules = []
-    next_symbol = rule.get_next_scan_symbol()
-    column = parse_table[column_number]
-
-    #print "trying to add rules for " + next_symbol
-    if (not column_already_contains_LHS(next_symbol, column)):
-        #print "success"
-        rules = get_all_rules_starting_with(next_symbol, column_number)
-
-        #print "### rules " + str(rules)
-
-        for rule in rules:
-            if (not rule in column
-                and matches_left_corner(column_number, rule, sentence)):
-
-                column.append(rule)
-                added_rules.append(rule)
-
-    return added_rules
-
-
-#only returns true if a column already has a rule with this start symbol,
-#and its index is 0 (ie it was started in this column)
-def column_already_contains_LHS(LHS, column):
-    new_rules = filter(lambda x: x.is_not_started(), column)
-    #print "filter" + str(new_rules)
-    return LHS in map(lambda x: x.get_LHS(), new_rules)
-
-
-#symbol rules must start with
-#column_number is the column this rule will start in
-def get_all_rules_starting_with(symbol, column_number):
-    global rule_table
-    rules = filter(lambda x: x.matches_start_symbol(symbol), rule_table)
-    for rule in rules:
-        rule.set_start(column_number)
-    return rules
-
-
-#true if the left-corner set for this rule matches the next word in the sentence
-def matches_left_corner(column_num, rule, sentence):
-    if (column_num > len(sentence)-1):
-        return False #no further prediction is sentence is over
-    else:
-        lookahead_word = sentence[column_num]
-        symbol = rule.get_LHS()
-        return lookahead_word in left_corner[symbol]
-
-
-#############################
-
-
-def attach(completed_rule, column_number):
-    global parse_table
-
-    completed_symbol = completed_rule.get_LHS()
-    started = completed_rule.get_start_column_number()
-
-    #for the column this rule started in
-    column = parse_table[started]
-
-    for rule in column:
-        if (not rule.is_complete() and rule.can_scan(completed_symbol)):
-            #add the moved rule to the column completed_rule ended in
-            add_rule_to_parse_table(rule.get_moved_rule(), column_number)
-
-def attach_all_completed_rules(column_number):
-    global parse_table
-    for rule in parse_table[column_number]:
-        if rule.is_complete():
-            attach(rule, column_number)
-
-
-#############################
-
-
-def earley(sentence):
-    global parse_table
-    parse_table = []
-
-    #add root symbol
-    root_rule = Rule(0, "ROOT", ["S"], 0)
-    add_rule_to_parse_table(root_rule, 0)
-
-    column_number = 0
-
-    #for each column
-    while column_number < len(parse_table):
-    #will if be a problem if we add cols as we do this loop?
-
-        print "##"
-        print "start loop" + str(column_number)
-
-        #attach any completed rules backwards
-        attach_all_completed_rules(column_number)
-            #and check if those rules complete, attach etc.
-
-        print "attach:"
-        print_parse_table()
-
-        #fully predict column
-        predict_entire_column(column_number, sentence)
-
-        print "predict:"
-        print_parse_table()
-
-        #scan column and start filling out next one
-        if (column_number < len(sentence)): #if there's more sentence to scan
-            scan(sentence[column_number], column_number)
-
-            print "scan"
-            print_parse_table()
-
-        column_number += 1 #increment
-
-    #if Root is complete end
-    print "END"
-    print str(sentence)
-    return parse_table_complete(parse_table)
-
-
-#was this parse table finished successfully
-#ie "0 Root -> S." is in the last column
-def parse_table_complete(parse_table):
-    return Rule(0, "ROOT", ["S"], 1) in parse_table[-1]
-
-
-def print_parse_table():
-
-    print "####"
-    pprint.pprint(parse_table)
-    print ""
-
-
-
-def add_rule_to_parse_table(rule, column_number):
-    global parse_table
-    if len(parse_table) > column_number:
-        parse_table[column_number].append(rule)
-    elif len(parse_table) == column_number:
-        parse_table.append([rule])
-    else:
-        print "### trying to add to a column out of range " + str(column_number)
-
-
-#test
 '''
 print earley(["Jane","eats"])
 print "#######\n"
@@ -353,7 +354,7 @@ print earley(["Jane", "silly","eats","Jane"])
 print "#######\n"
 '''
 
-print earley(["Papa", "ate", "the", "caviar", "with", "the", "spoon"])
+print earley.parse(["Papa", "ate", "the", "caviar", "with", "the", "spoon"])
 print "#######\n"
 
 
