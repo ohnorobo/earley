@@ -10,6 +10,7 @@ class TestEarley(unittest.TestCase):
         rule_table1 = [
             Rule(0, "ROOT", ["S"], 0),
             Rule(0, "S", ["NP", "V"], 0),
+            Rule(0, "S", ["NP", "VP"], 0),
             Rule(0, "VP", ["V", "NP"], 0),
             Rule(0, "NP", ["ADJ", "NP"],0),
 

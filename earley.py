@@ -108,8 +108,6 @@ class EarleyParser():
         # NP -> ["the", "a", "Papa"]
         # PP -> ["in", "with"]
         self.left_corner = self.generate_left_corner_table()
-        print "left corner:"
-        pprint.pprint(self.left_corner)
 
     #############################
 
@@ -299,35 +297,39 @@ class EarleyParser():
         while column_number < len(self.parse_table):
         #will if be a problem if we add cols as we do this loop?
 
-            print "##"
-            print "start loop" + str(column_number)
+            #print "##"
+            #print "start loop" + str(column_number)
 
             #attach any completed rules backwards
             self.attach_all_completed_rules(column_number)
                 #and check if those rules complete, attach etc.
 
-            print "attach:"
-            self.print_parse_table()
+            #print "attach:"
+            #self.print_parse_table()
 
             #fully predict column
             self.predict_entire_column(column_number, sentence)
 
-            print "predict:"
-            self.print_parse_table()
+            #print "predict:"
+            #self.print_parse_table()
 
             #scan column and start filling out next one
             if (column_number < len(sentence)): #if there's more sentence to scan
                 self.scan(sentence[column_number], column_number)
 
-                print "scan"
-                self.print_parse_table()
+                #print "scan"
+                #self.print_parse_table()
 
             column_number += 1 #increment
 
         #if Root is complete end
-        print "END"
-        print str(sentence)
-        return self.parse_table_complete()
+        #print "END"
+        #print str(sentence)
+
+        if (column_number == 1 + len(sentence)):
+            return self.parse_table_complete()
+        else:
+            return False
 
 
     #was this parse table finished successfully
@@ -351,41 +353,6 @@ class EarleyParser():
             self.parse_table.append([rule])
         else:
             print "### trying to add to a column out of range " + str(column_number)
-
-
-
-#########################################
-#test
-
-
-
-#list of rules
-
-rule_table = [
-    Rule(0, "ROOT", ["S"], 0),
-    Rule(0, "S", ["NP", "VP"], 0),
-    Rule(0, "NP", ["Det", "N"], 0),
-    Rule(0, "NP", ["NP", "PP"], 0),
-    Rule(0, "VP", ["V", "NP"], 0),
-    Rule(0, "VP", ["VP", "PP"], 0),
-    Rule(0, "PP", ["P", "NP"], 0),
-
-    Rule(0, "NP", ["Papa"], 0),
-    Rule(0, "N", ["caviar"], 0),
-    Rule(0, "N", ["spoon"], 0),
-    Rule(0, "V", ["ate"], 0),
-    Rule(0, "P", ["with"], 0),
-    Rule(0, "Det", ["the"], 0),
-    Rule(0, "Det", ["a"], 0)
-    ]
-
-
-earley = EarleyParser(rule_table)
-
-
-print earley.parse("Papa ate the caviar with the spoon")
-print "#######\n"
-
 
 
 
