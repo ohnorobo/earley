@@ -56,6 +56,11 @@ class Rule:
     def get_LHS(self):
         return self.LHS
 
+    #get the rhs of this rule
+    #listof string
+    def get_RHS(self):
+        return self.RHS
+
     #does the given symbol match the symbol we're looking for?
     #boolean
     def can_scan(self, symbol):
@@ -102,17 +107,66 @@ class EarleyParser():
         #map of symbols -> list of potential terminals that they can start with
         # NP -> ["the", "a", "Papa"]
         # PP -> ["in", "with"]
-        self.left_corner = {
-            "ROOT" : ["Papa", "the", "a", "caviar", "spoon"],
-            "S" :  ["Papa", "the", "a", "caviar", "spoon"],
-            "NP" : ["Papa", "the", "a", "caviar", "spoon"],
-            "VP" : ["ate"],
-            "PP" : ["with"],
-            "N" : ["Papa", "caviar", "spoon"],
-            "V" : ["ate"],
-            "P" : ["with"],
-            "Det" : ["the", "a"]
-            }
+        self.left_corner = self.generate_left_corner_table()
+        print "left corner:"
+        pprint.pprint(self.left_corner)
+
+    #############################
+
+    # this will fail if 2 rules have cyclic left-corner dependancies
+    # ex:
+    # XP -> YP Z
+    # YP -> XP Z
+
+    # returns left corner table
+    # we only care about rules tht can be reached by the ROOT rule
+    # { LHS -> [all possible starting words] }
+    def generate_left_corner_table(self):
+        left_corner = {}
+        non_terminals = [x.get_LHS() for x in self.rule_table]
+        for non_terminal in non_terminals:
+            self.add_left_corner_for_rule(non_terminal, left_corner,
+                                          non_terminals)
+        return left_corner
+
+    # given a rule add all its possible left corners
+    # and the left corners of its children
+    def add_left_corner_for_rule(self, LHS, left_corner_table, non_terminals):
+        if LHS in left_corner_table.keys():
+            return
+
+        #print "adding lcr for " + LHS
+
+        left_corner = self.get_immediate_left_corner(LHS)
+        #may have non-terminals
+        if LHS in left_corner: left_corner.remove(LHS)
+        #remove self-recursive rules
+
+        intersection = [val for val in left_corner if val in non_terminals]
+
+        while(len(intersection) > 0):
+            non_terminal = intersection[0]
+            if not non_terminal in left_corner_table.keys():
+                self.add_left_corner_for_rule(non_terminal, left_corner_table,
+                                              non_terminals)
+
+            intersection.remove(non_terminal)
+            left_corner.remove(non_terminal)
+                #remove non terminal
+            left_corner += left_corner_table[non_terminal]
+                #add equivalent terminals
+
+        left_corner_table[LHS] = left_corner
+
+
+
+    #gets the first symbol of each expansion for this LHS
+    #list may contain terminals and nonterminals
+    def get_immediate_left_corner(self, LHS):
+        rules_with_LHS = filter(lambda x: x.get_LHS() == LHS, self.rule_table)
+        immediate_left_corner = map(lambda x: x.get_RHS()[0], rules_with_LHS)
+        return immediate_left_corner
+
 
 
     #############################
@@ -306,19 +360,6 @@ class EarleyParser():
 
 
 #list of rules
-'''
-rule_table = [
-    Rule(0, "ROOT", ["S"], 0),
-    Rule(0, "S", ["NP", "V"], 0),
-    Rule(0, "VP", ["V", "NP"], 0),
-    Rule(0, "NP", ["ADJ", "NP"],0),
-
-    Rule(0, "NP", ["Jane"], 0),
-    Rule(0, "ADJ", ["silly"], 0),
-    Rule(0, "V", ["eats"], 0),
-    Rule(0, "V", ["cries"], 0)
-    ]
-
 
 rule_table = [
     Rule(0, "ROOT", ["S"], 0),
@@ -342,22 +383,8 @@ rule_table = [
 earley = EarleyParser(rule_table)
 
 
-
-print earley(["Jane","eats"])
+print earley.parse("Papa ate the caviar with the spoon")
 print "#######\n"
-print earley(["Jane","eats","Jane"])
-print "#######\n"
-print earley(["Jane"])
-print "#######\n"
-print earley(["silly", "Jane","eats","Jane"])
-print "#######\n"
-print earley(["Jane", "silly","eats","Jane"])
-print "#######\n"
-
-
-print earley.parse(["Papa", "ate", "the", "caviar", "with", "the", "spoon"])
-print "#######\n"
-'''
 
 
 

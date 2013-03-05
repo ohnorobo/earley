@@ -22,6 +22,7 @@ class TestEarley(unittest.TestCase):
         earley = EarleyParser(rule_table1)
 
         self.assertEqual(True, earley.parse("Jane eats"))
+        self.assertEqual(True, earley.parse("Jane cries"))
         self.assertEqual(False, earley.parse("Jane"))
         self.assertEqual(True, earley.parse("silly Jane eats Jane"))
         self.assertEqual(False, earley.parse("Jane silly eats Jane"))
@@ -50,6 +51,12 @@ class TestEarley(unittest.TestCase):
         earley = EarleyParser(rule_table2)
 
         self.assertEqual(True, earley.parse("Papa ate the caviar with the spoon"))
+        self.assertEqual(True, earley.parse("Papa ate the caviar"))
+        self.assertEqual(False, earley.parse("ate the caviar with the spoon"))
+        self.assertEqual(False, earley.parse("Papa ate caviar with the spoon"))
+        self.assertEqual(False, earley.parse("Papa ate the caviar the spoon"))
+        self.assertEqual(False, earley.parse("Papa the caviar with the spoon"))
+        self.assertEqual(False, earley.parse("the caviar with the spoon"))
 
 if __name__ == '__main__':
     unittest.main()
