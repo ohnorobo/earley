@@ -233,6 +233,7 @@ class EarleyParser():
 
     def parse(self, sentence):
         self.parse_table = []
+        sentence = sentence.split() #split sentence into list of strings
 
         #add root symbol
         root_rule = Rule(0, "ROOT", ["S"], 0)
@@ -317,7 +318,7 @@ rule_table = [
     Rule(0, "V", ["eats"], 0),
     Rule(0, "V", ["cries"], 0)
     ]
-'''
+
 
 rule_table = [
     Rule(0, "ROOT", ["S"], 0),
@@ -341,7 +342,7 @@ rule_table = [
 earley = EarleyParser(rule_table)
 
 
-'''
+
 print earley(["Jane","eats"])
 print "#######\n"
 print earley(["Jane","eats","Jane"])
@@ -352,11 +353,11 @@ print earley(["silly", "Jane","eats","Jane"])
 print "#######\n"
 print earley(["Jane", "silly","eats","Jane"])
 print "#######\n"
-'''
+
 
 print earley.parse(["Papa", "ate", "the", "caviar", "with", "the", "spoon"])
 print "#######\n"
-
+'''
 
 
 
