@@ -58,7 +58,7 @@ def rewrite_node(node):
         #print "## node " + node
         #rewrite = random.choice(rules[node])[0]
         rewrite = choose_probabilistic(rules[node])
-        print "## rewriting " + node + " to " + str(rewrite)
+        #print "## rewriting " + node + " to " + str(rewrite)
 
         filtered =  map(rewrite_node, rewrite)
         #print "### filtered:"

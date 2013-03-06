@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import pprint
 import copy
+import sys
+import re
 
 
 #############################
@@ -108,6 +110,9 @@ class EarleyParser():
         # NP -> ["the", "a", "Papa"]
         # PP -> ["in", "with"]
         self.left_corner = self.generate_left_corner_table()
+
+        pprint.pprint(self.rule_table)
+        pprint.pprint(self.left_corner)
 
     #############################
 
@@ -285,10 +290,9 @@ class EarleyParser():
 
     def parse(self, sentence):
         self.parse_table = []
-        sentence = sentence.split() #split sentence into list of strings
 
         #add root symbol
-        root_rule = Rule(0, "ROOT", ["S"], 0)
+        root_rule = Rule(0, "START", ["ROOT"], 0)
         self.add_rule_to_parse_table(root_rule, 0)
 
         column_number = 0
@@ -297,34 +301,35 @@ class EarleyParser():
         while column_number < len(self.parse_table):
         #will if be a problem if we add cols as we do this loop?
 
-            #print "##"
-            #print "start loop" + str(column_number)
+            print "##"
+            print "start loop" + str(column_number)
 
             #attach any completed rules backwards
             self.attach_all_completed_rules(column_number)
                 #and check if those rules complete, attach etc.
 
-            #print "attach:"
-            #self.print_parse_table()
+            print "attach:"
+            self.print_parse_table()
 
             #fully predict column
             self.predict_entire_column(column_number, sentence)
 
-            #print "predict:"
-            #self.print_parse_table()
+            print "predict:"
+            self.print_parse_table()
 
             #scan column and start filling out next one
             if (column_number < len(sentence)): #if there's more sentence to scan
                 self.scan(sentence[column_number], column_number)
 
-                #print "scan"
-                #self.print_parse_table()
+                print "scan"
+                self.print_parse_table()
 
             column_number += 1 #increment
 
         #if Root is complete end
-        #print "END"
-        #print str(sentence)
+        print "END"
+        print str(sentence)
+        self.print_parse_table()
 
         if (column_number == 1 + len(sentence)):
             return self.parse_table_complete()
@@ -335,7 +340,7 @@ class EarleyParser():
     #was this parse table finished successfully
     #ie "0 Root -> S." is in the last column
     def parse_table_complete(self):
-        return Rule(0, "ROOT", ["S"], 1) in self.parse_table[-1]
+        return Rule(0, "START", ["ROOT"], 1) in self.parse_table[-1]
 
 
     def print_parse_table(self):
@@ -356,3 +361,29 @@ class EarleyParser():
 
 
 
+
+#############################
+
+#parse rules, parse sentence,
+def main():
+
+    grammar_filename = sys.argv[1] #first arg is the filename
+    sentence = sys.argv[2:] #all other args are the sentence
+    rules = []
+
+    f = open(grammar_filename, 'r')
+    for line in f:
+        if (line[0] != "#" and (not re.match(line.strip(), '\s'))):
+            line = line.split("#")[0] #remove comments
+
+            split = line.strip().split()
+            weight = float(split[0])
+            LHS = split[1]
+            RHS = split[2:]
+            rules.append(Rule(0, LHS, RHS, 0))
+
+    earley = EarleyParser(rules)
+    print earley.parse(sentence)
+
+if __name__ == "__main__":
+    main()
