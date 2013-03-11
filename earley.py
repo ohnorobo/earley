@@ -103,7 +103,7 @@ class EarleyParser():
         self.parse_table = []
 
         #list of rules
-        self.rule_table = rules
+        self.rule_table = self.sort_rules_by_LHS(rules)
 
         #left corner
         #TODO- generate this from rules
@@ -115,7 +115,24 @@ class EarleyParser():
         #pprint.pprint(self.rule_table)
         #pprint.pprint(self.left_corner)
 
+
+    #takes a list of rules
+    #and returns a dict of {LHS -> list of rules}
+    def sort_rules_by_LHS(self, rules_list):
+        rules = {}
+
+        for rule in rules_list:
+            LHS = rule.get_LHS()
+            if LHS in rules.keys():
+                rules[LHS].append(rule)
+            else:
+                rules[LHS] = [rule]
+
+        return rules
+
+
     #############################
+    # Generate the left-corner table for optimization
 
     # this will fail if 2 rules have cyclic left-corner dependancies
     # ex:
@@ -127,7 +144,7 @@ class EarleyParser():
     # { LHS -> [all possible starting words] }
     def generate_left_corner_table(self):
         left_corner = {}
-        non_terminals = set([x.get_LHS() for x in self.rule_table])
+        non_terminals = self.rule_table.keys()
         for non_terminal in non_terminals:
             self.add_left_corner_for_rule(non_terminal, left_corner,
                                           non_terminals)
@@ -181,7 +198,8 @@ class EarleyParser():
     #gets the first symbol of each expansion for this LHS
     #list may contain terminals and nonterminals
     def get_immediate_left_corner(self, LHS):
-        rules_with_LHS = filter(lambda x: x.get_LHS() == LHS, self.rule_table)
+        #rules_with_LHS = filter(lambda x: x.get_LHS() == LHS, self.rule_table)
+        rules_with_LHS = self.rule_table[LHS]
         immediate_left_corner = map(lambda x: x.get_RHS()[0], rules_with_LHS)
         return immediate_left_corner
 
@@ -262,10 +280,14 @@ class EarleyParser():
     #symbol rules must start with
     #column_number is the column this rule will start in
     def get_all_rules_starting_with(self, symbol, column_number):
-        rules = filter(lambda x: x.matches_start_symbol(symbol), self.rule_table)
-        for rule in rules:
-            rule.set_start(column_number)
-        return rules
+        #rules = filter(lambda x: x.matches_start_symbol(symbol), self.rule_table)
+        if symbol in self.rule_table.keys():
+            rules = self.rule_table[symbol]
+            for rule in rules:
+                rule.set_start(column_number)
+            return rules
+        else:
+            return []
 
 
     #true if the left-corner set for this rule matches the next word in the sentence
@@ -399,8 +421,6 @@ def main():
     f = open(grammar_filename, 'r')
     for line in f:
         if (line[0] != "#" and (not pattern.match(line.strip()))):
-        #if (line[0] != "#" and (not re.match(line.strip(), '\s'))):
-        #if (line[0] != "#" and (not re.match('^\s*$', line.strip()))):
             line = line.split("#")[0] #remove comments
 
             split = line.strip().split()
