@@ -260,8 +260,8 @@ class EarleyParser():
             #print "### rules " + str(rules)
 
             for rule in rules:
-                if (not rule in column
-                    and self.matches_left_corner(column_number, rule, sentence)):
+                if (self.matches_left_corner(column_number, rule, sentence)
+                    and not rule in column):
 
                     rule.set_start(column_number)
                     column.append(rule)
