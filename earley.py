@@ -5,6 +5,7 @@ import sys
 import re
 
 
+
 #############################
 
 
@@ -126,7 +127,7 @@ class EarleyParser():
     # { LHS -> [all possible starting words] }
     def generate_left_corner_table(self):
         left_corner = {}
-        non_terminals = [x.get_LHS() for x in self.rule_table]
+        non_terminals = set([x.get_LHS() for x in self.rule_table])
         for non_terminal in non_terminals:
             self.add_left_corner_for_rule(non_terminal, left_corner,
                                           non_terminals)
@@ -140,26 +141,40 @@ class EarleyParser():
 
         #print "adding lcr for " + LHS
 
-        left_corner = self.get_immediate_left_corner(LHS)
+        imm_left_corner = self.get_immediate_left_corner(LHS)
         #may have non-terminals
-        if LHS in left_corner: left_corner.remove(LHS)
+        while LHS in imm_left_corner:
+            print "removing " + LHS
+            imm_left_corner.remove(LHS)
+            pprint.pprint(imm_left_corner)
         #remove self-recursive rules
 
-        intersection = [val for val in left_corner if val in non_terminals]
+        intersection = [val for val in imm_left_corner if val in non_terminals]
+
+        #print "imm_left corner"
+        #pprint.pprint(imm_left_corner)
+        #print "non terminals"
+        #pprint.pprint(non_terminals)
+
+        #print "LHS " + LHS
+        #print "intersections"
+        #pprint.pprint(intersection)
 
         while(len(intersection) > 0):
             non_terminal = intersection[0]
             if not non_terminal in left_corner_table.keys():
+                #don't follow recursive rules, TODO will this find triangles?
+                print non_terminal
                 self.add_left_corner_for_rule(non_terminal, left_corner_table,
                                               non_terminals)
 
             intersection.remove(non_terminal)
-            left_corner.remove(non_terminal)
+            imm_left_corner.remove(non_terminal)
                 #remove non terminal
-            left_corner += left_corner_table[non_terminal]
+            imm_left_corner += left_corner_table[non_terminal]
                 #add equivalent terminals
 
-        left_corner_table[LHS] = left_corner
+        left_corner_table[LHS] = imm_left_corner
 
 
 
@@ -256,11 +271,19 @@ class EarleyParser():
     #true if the left-corner set for this rule matches the next word in the sentence
     def matches_left_corner(self, column_num, rule, sentence):
         if (column_num > len(sentence)-1):
-            return False #no further prediction is sentence is over
+            return False #no further prediction if sentence is over
         else:
             lookahead_word = sentence[column_num]
-            symbol = rule.get_LHS()
-            return lookahead_word in self.left_corner[symbol]
+            symbol = rule.get_next_scan_symbol()
+
+            #print "lookahead" + lookahead_word
+            #print rule.get_LHS()
+            #print self.left_corner[symbol]
+
+            if symbol in self.left_corner.keys():
+                return lookahead_word in self.left_corner[symbol]
+            else:
+                return lookahead_word == symbol
 
 
     #############################
@@ -288,6 +311,7 @@ class EarleyParser():
     #############################
 
 
+    #sentence is a list of words/punctuation
     def parse(self, sentence):
         self.parse_table = []
 
@@ -301,28 +325,28 @@ class EarleyParser():
         while column_number < len(self.parse_table):
         #will if be a problem if we add cols as we do this loop?
 
-            print "##"
-            print "start loop" + str(column_number)
+            #print "##"
+            #print "start loop" + str(column_number)
 
             #attach any completed rules backwards
             self.attach_all_completed_rules(column_number)
                 #and check if those rules complete, attach etc.
 
-            print "attach:"
-            self.print_parse_table()
+            #print "attach:"
+            #self.print_parse_table()
 
             #fully predict column
             self.predict_entire_column(column_number, sentence)
 
-            print "predict:"
-            self.print_parse_table()
+            #print "predict:"
+            #self.print_parse_table()
 
             #scan column and start filling out next one
             if (column_number < len(sentence)): #if there's more sentence to scan
                 self.scan(sentence[column_number], column_number)
 
-                print "scan"
-                self.print_parse_table()
+                #print "scan"
+                #self.print_parse_table()
 
             column_number += 1 #increment
 
@@ -368,7 +392,7 @@ class EarleyParser():
 def main():
 
     grammar_filename = sys.argv[1] #first arg is the filename
-    sentence = sys.argv[2:] #all other args are the sentence
+    sentence_filename = sys.argv[2] #all other args are the sentence
     rules = []
 
     f = open(grammar_filename, 'r')
@@ -383,7 +407,10 @@ def main():
             rules.append(Rule(0, LHS, RHS, 0))
 
     earley = EarleyParser(rules)
-    print earley.parse(sentence)
+
+    f2 = open(sentence_filename, 'r')
+    for sentence in f2:
+        print earley.parse(sentence.split())
 
 if __name__ == "__main__":
     main()
