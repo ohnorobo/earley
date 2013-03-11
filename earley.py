@@ -112,8 +112,8 @@ class EarleyParser():
         # PP -> ["in", "with"]
         self.left_corner = self.generate_left_corner_table()
 
-        pprint.pprint(self.rule_table)
-        pprint.pprint(self.left_corner)
+        #pprint.pprint(self.rule_table)
+        #pprint.pprint(self.left_corner)
 
     #############################
 
@@ -351,9 +351,9 @@ class EarleyParser():
             column_number += 1 #increment
 
         #if Root is complete end
-        print "END"
-        print str(sentence)
-        self.print_parse_table()
+        #print "END"
+        #print str(sentence)
+        #self.print_parse_table()
 
         if (column_number == 1 + len(sentence)):
             return self.parse_table_complete()
@@ -392,12 +392,15 @@ class EarleyParser():
 def main():
 
     grammar_filename = sys.argv[1] #first arg is the filename
-    sentence_filename = sys.argv[2] #all other args are the sentence
+    sentence_filename = sys.argv[2] #second arg is the sentence filename
     rules = []
+    pattern = re.compile('^\s*$') #line with only whitespace
 
     f = open(grammar_filename, 'r')
     for line in f:
-        if (line[0] != "#" and (not re.match(line.strip(), '\s'))):
+        if (line[0] != "#" and (not pattern.match(line.strip()))):
+        #if (line[0] != "#" and (not re.match(line.strip(), '\s'))):
+        #if (line[0] != "#" and (not re.match('^\s*$', line.strip()))):
             line = line.split("#")[0] #remove comments
 
             split = line.strip().split()
