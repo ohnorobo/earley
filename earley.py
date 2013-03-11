@@ -255,7 +255,7 @@ class EarleyParser():
         #print "trying to add rules for " + next_symbol
         if (not self.column_already_contains_LHS(next_symbol, column)):
             #print "success"
-            rules = self.get_all_rules_starting_with(next_symbol, column_number)
+            rules = self.get_all_rules_starting_with(next_symbol)
 
             #print "### rules " + str(rules)
 
@@ -263,6 +263,7 @@ class EarleyParser():
                 if (not rule in column
                     and self.matches_left_corner(column_number, rule, sentence)):
 
+                    rule.set_start(column_number)
                     column.append(rule)
                     added_rules.append(rule)
 
@@ -279,12 +280,12 @@ class EarleyParser():
 
     #symbol rules must start with
     #column_number is the column this rule will start in
-    def get_all_rules_starting_with(self, symbol, column_number):
+    def get_all_rules_starting_with(self, symbol):
         #rules = filter(lambda x: x.matches_start_symbol(symbol), self.rule_table)
         if symbol in self.rule_table.keys():
             rules = self.rule_table[symbol]
-            for rule in rules:
-                rule.set_start(column_number)
+            #for rule in rules:
+            #    rule.set_start(column_number)
             return rules
         else:
             return []
