@@ -67,6 +67,46 @@ class TestEarley(unittest.TestCase):
         self.assertEqual(False, earley.parse(["Papa", "the", "caviar", "with", "the", "spoon"]))
         self.assertEqual(False, earley.parse(["the", "caviar", "with", "the", "spoon"]))
 
+    def test_cyclic_rules(self):
+
+        rule_table = [
+            Rule(0, "XP", ["YP"], 0),
+            Rule(0, "YP", ["XP"], 0),
+            Rule(0, "XP", ["a"], 0),
+            Rule(0, "YP", ["b"], 0),
+            ]
+
+        earley = EarleyParser(rule_table)
+
+        self.assertEqual(set(["a", "b"]), set(earley.left_corner["XP"]))
+        self.assertEqual(set(["a", "b"]), set(earley.left_corner["YP"]))
+
+
+    def test_tricyclic_rules(self):
+
+        rule_table = [
+            Rule(0, "XP", ["YP"], 0),
+            Rule(0, "YP", ["ZP"], 0),
+            Rule(0, "ZP", ["JP"], 0),
+            Rule(0, "ZP", ["XP"], 0),
+            Rule(0, "XP", ["a"], 0),
+            Rule(0, "YP", ["b"], 0),
+            Rule(0, "ZP", ["c"], 0),
+            Rule(0, "KP", ["XP"], 0),
+            Rule(0, "KP", ["d"], 0),
+            Rule(0, "JP", ["e"], 0)
+            ]
+
+        earley = EarleyParser(rule_table)
+
+        self.assertEqual(set(["a", "b", "c", "e"]), set(earley.left_corner["XP"]))
+        self.assertEqual(set(["a", "b", "c", "e"]), set(earley.left_corner["YP"]))
+        self.assertEqual(set(["a", "b", "c", "e"]), set(earley.left_corner["ZP"]))
+        self.assertEqual(set(["a", "b", "c", "d", "e"]), set(earley.left_corner["KP"]))
+        self.assertEqual(set(["e"]), set(earley.left_corner["JP"]))
+
+
+
 if __name__ == '__main__':
     unittest.main()
 

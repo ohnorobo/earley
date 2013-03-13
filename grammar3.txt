@@ -37,18 +37,24 @@
 #    Adj = adjective
 
 1 S	NP VP
+.2 S CP CVP
 
-1 VP	Verb NP
-0.1 VP    VP Conj VP
-1 VP    Verb2
+#verb that can take a CP subject 
+1 CVP   CVerbTr NP
+
+
+1 VP	VerbTr NP
+.2 VP    VP Conj VP
+1 VP    VerbIn
+1 VP    VerbTrC CP
 
 1 NP	Det Noun
-0.2 NP	NP PP
-0.2 NP    that S
-0.2 NP    NP Conj NP
+.2 NP    NP Conj NP
 1 NP    PrNoun
 
 1 PP	Prep NP
+
+1 CP    that S
 
 1 Noun	Adj Noun
 
@@ -59,14 +65,26 @@
 # that a preterminal is a special kind of nonterminal.
 
 #transitive
-1 Verb	ate
-1 Verb	wanted
-1 Verb	kissed
-1 Verb	understood
-1 Verb	pickled
+1 VerbTr	ate
+1 VerbTr	wanted
+1 VerbTr	kissed
+1 VerbTr	understood
+1 VerbTr	pickled
+1 VerbTr  perplexed
+
+#transitive and can take a CP subject
+1 CVerbTr   perplexed
+1 CVerbTr   enlightened
+1 CVerbTr   frightened
+
+#transitive and takes CP
+1 VerbTrC   understood
+1 VerbTrC   wished
+1 VerbTrC   said
+1 VerbTrC   thought
 
 #intransitive
-1 Verb2 smiled
+1 VerbIn smiled
 
 1 Det	the
 1 Det	a

@@ -2,7 +2,7 @@
 
 
 
-#%
+#% Lexical items/categories taken from Attempto
 #%
 #%
 #% Copyright 2008, Attempto Group, University of Zurich 	see http://attempto.ifi.uzh.ch).
@@ -51,35 +51,177 @@
 1 NP    pNP
 1 NP    sNP
 
-8 sNP   noun_sg
-1 sNP   adjP sNP
-1 sNP   noun_mass
 
-8 pNP   noun_pl
-1 pNP   adjP pNP
+.2 NP    NP CONJ NP
+.2 VP    VP CONJ VP
+
+
+
+1 CP    COMP S
+
+1 sNP   sDET sNP'
+8 sNP'   noun_sg
+1 sNP'   adjP sNP'
+1 sNP'   noun_mass
+.1 sNP'  sNP' RC
+
+1 pNP   pNP'
+1 pNP   pDET pNP'
+8 pNP'   noun_pl
+1 pNP'   adjP pNP'
+.1 sNP'  pNP' RC
 
 1 adjP  adj_itr
 1 adjP  adj_itr_comp
 1 adjP  adj_itr_sup
 
 
-8 sVP   iv_finsg
-8 sVP   tv_finsg NP
-1 sVP   advP sVP
 
-8 pVP   iv_infpl
-8 pVP   tv_infpl NP
-1 pVP   advP pVP
+1 sVP   MODAL pVP'  #verbs become plural after a modal
+1 sVP   sVP'
 
-1 advP  adv
-1 advP  adv_comp
-1 advP  adv_sup
+8 sVP'   iv_finsg
+8 sVP'   tv_finsg NP
+8 sVP'   dv_finsg NP NP
+2 sVP'   sadvP sVP'
+4 sVP'  sVP' PP
 
 
+1 pVP   MODAL pVP'
+1 pVP   pVP'
 
-1 DET   the
-1 DET   this
-1 DET   that
+8 pVP'   iv_infpl
+8 pVP'   tv_infpl NP
+8 pVP'   dv_infpl NP NP
+2 pVP'   padvP pVP'
+4 pVP'  pVP' PP
+
+1 sadvP  adv
+1 sadvP  adv_comp
+1 sadvP  adv_sup
+
+1 padvP  adv
+#1 padvP  adv_comp
+#1 padvP  adv_sup
+
+
+1 PP  P NP
+1 PP  prep NP
+
+
+#relative clauses (for NPs)
+1 RC  REL VP 
+
+#relativizer
+1 REL   who
+1 REL   that
+#I don't want to add which, etc. because I don't have the right noun distinctions
+#these two are prety generic
+
+
+
+
+
+##### more lexical items (mostly closed-class words)
+## some taken from here:
+## http://www.flesl.net/Vocabulary/Single-word_Lists/function_word_list.php
+
+
+1 sDET   the
+1 sDET   this
+1 sDET   that
+1 sDET  one
+1 sDet  a
+1 sDET  POSS
+
+1 pDET  the
+1 pDET  these
+1 pDET  those
+1 pDET  two
+1 pDET  three
+1 pDET  four
+1 pDET  five
+1 pDET  six
+1 pDET  seven
+1 pDET  eight
+1 pDET  nine
+1 pDET  ten
+1 pDET  POSS
+
+1 POSS  my
+1 POSS  your
+1 POSS  his
+1 POSS  her
+1 POSS  their
+1 POSS  our
+1 POSS  NP 's
+
+
+
+1 COMP  that
+
+1 CONJ  and
+#1 CONJ  but
+#1 CONJ  or
+
+
+1 P  about
+1 P  across
+1 P  against
+1 P  along
+1 P  around
+1 P  at
+1 P  behind
+1 P  beside
+1 P  by
+1 P  despite
+1 P  down
+1 P  during
+1 P  for
+1 P  from
+1 P  in
+1 P  inside
+1 P  into
+1 P  near
+1 P  of
+1 P  off
+1 P  on
+1 P  into
+1 P  over
+1 P  through
+1 P  to
+1 P  toward
+1 P  with
+1 P  within
+1 P  without
+
+2 pMODAL    is
+1 PMODAL    MODAL
+
+2 sMODAL    are
+1 pMODAL    MODAL
+
+1 MODAL   can
+1 MODAL   may
+1 MODAL   will
+1 MODAL   shall
+1 MODAL   should
+1 MODAL   could
+1 MODAL   might
+1 MODAL   would
+1 MODAL   must
+
+#to-be verbs
+1 1sMODAL   am
+1 1pMODAL   are
+1 2sMODAL   are
+1 2pMODAL   are
+1 3sMODAL   is
+1 3pMODAL   are
+
+
+#########lexical items from attempto
+
 
 
 1 adj_itr	Fahrenheit
@@ -19974,23 +20116,22 @@
 1 dv_finsg	administers
 1 dv_finsg	advances
 1 dv_finsg	affords
-1 dv_finsg	aims
+.1 dv_finsg	aims
 1 dv_finsg	allocates
 1 dv_finsg	allows
 1 dv_finsg	applies
 1 dv_finsg	apportions
 1 dv_finsg	asks
-1 dv_finsg	assesses
+.1 dv_finsg	assesses
 1 dv_finsg	assigns
-1 dv_finsg	assigns
-1 dv_finsg	assures
-1 dv_finsg	avows
+.1 dv_finsg	assures
+.1 dv_finsg	avows
 1 dv_finsg	awards
 1 dv_finsg	bakes
 1 dv_finsg	bars
 1 dv_finsg	begrudges
 1 dv_finsg	bequeaths
-1 dv_finsg	betroths
+.1 dv_finsg	betroths
 1 dv_finsg	bets
 1 dv_finsg	bids
 1 dv_finsg	bills
@@ -20004,24 +20145,23 @@
 1 dv_finsg	concedes
 1 dv_finsg	cooks
 1 dv_finsg	costs
-1 dv_finsg	costs
 1 dv_finsg	croons
 1 dv_finsg	deals
 1 dv_finsg	delivers
 1 dv_finsg	denies
-1 dv_finsg	depresses
+.1 dv_finsg	depresses
 1 dv_finsg	draws
 1 dv_finsg	drops
 1 dv_finsg	earns
-1 dv_finsg	edges
+.1 dv_finsg	edges
 1 dv_finsg	ensures
 1 dv_finsg	entitles
 1 dv_finsg	envies
 1 dv_finsg	faxes
 1 dv_finsg	feeds
 1 dv_finsg	fetches
-1 dv_finsg	figures
-1 dv_finsg	fills
+.1 dv_finsg	figures
+.1 dv_finsg	fills
 1 dv_finsg	finds
 1 dv_finsg	fines
 1 dv_finsg	fixes
@@ -20130,9 +20270,8 @@
 1 dv_infpl	ask
 1 dv_infpl	assess
 1 dv_infpl	assign
-1 dv_infpl	assign
-1 dv_infpl	assure
-1 dv_infpl	avow
+.1 dv_infpl	assure
+.1 dv_infpl	avow
 1 dv_infpl	award
 1 dv_infpl	bake
 1 dv_infpl	bar
@@ -20153,11 +20292,11 @@
 1 dv_infpl	cook
 1 dv_infpl	cost
 1 dv_infpl	cost
-1 dv_infpl	croon
+.1 dv_infpl	croon
 1 dv_infpl	deal
 1 dv_infpl	deliver
 1 dv_infpl	deny
-1 dv_infpl	depress
+.1 dv_infpl	depress
 1 dv_infpl	draw
 1 dv_infpl	drop
 1 dv_infpl	earn
@@ -35574,7 +35713,6 @@
 1 noun_pl	evil-doers
 1 noun_pl	ex-servicemen
 1 noun_pl	exhaust-pipes
-1 noun_pl	exposés
 1 noun_pl	eye-openers
 1 noun_pl	face-aches
 1 noun_pl	face-cards

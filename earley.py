@@ -138,70 +138,74 @@ class EarleyParser():
     # ex:
     # XP -> YP Z
     # YP -> XP Z
+    # haha this has been fixed now
 
     # returns left corner table
-    # we only care about rules tht can be reached by the ROOT rule
     # { LHS -> [all possible starting words] }
     def generate_left_corner_table(self):
-        left_corner = {}
+        initial_left_corner = {}
+        final_left_corner = {}
         non_terminals = self.rule_table.keys()
+
         for non_terminal in non_terminals:
-            self.add_left_corner_for_rule(non_terminal, left_corner,
-                                          non_terminals)
+            my_nonterminals, my_terminals = self.get_immediate_left_corner(
+                non_terminal, non_terminals)
+
+            initial_left_corner[non_terminal] = [my_nonterminals, my_terminals]
+            final_left_corner[non_terminal] = [my_nonterminals, my_terminals]
+
+        for key in final_left_corner.keys():
+            self.resolve_non_terminals(key, final_left_corner, initial_left_corner)
+
+        left_corner = {}
+        for key in final_left_corner.keys():
+            left_corner[key] = set(final_left_corner[key][1])
+            #get only terminals
+            #use sets to remove dups and make contains faster
+
+        #pprint.pprint(left_corner)
+
         return left_corner
 
-    # given a rule add all its possible left corners
-    # and the left corners of its children
-    def add_left_corner_for_rule(self, LHS, left_corner_table, non_terminals):
-        if LHS in left_corner_table.keys():
-            return
+    # given a LHS resolved all the nonterminals for that LHS un final_left using initial_left
+    # this will deal correctly with cyclic dependancies between rules
+    # although it may resolve the same path many times
+    # and it uses more memory than needed since many terminal lists are repeated
+    # instead of being resolved dynamically
+    def resolve_non_terminals(self, LHS, final_left_corner, initial_left_corner):
+        my_nonterminals = final_left_corner[LHS][0]
+        my_terminals = final_left_corner[LHS][1]
+        my_resolved_nonterminals = [LHS]
 
-        #print "adding lcr for " + LHS
+        while my_nonterminals:
+            non_terminal = my_nonterminals[0]
 
-        imm_left_corner = self.get_immediate_left_corner(LHS)
-        #may have non-terminals
-        while LHS in imm_left_corner:
-            print "removing " + LHS
-            imm_left_corner.remove(LHS)
-            pprint.pprint(imm_left_corner)
-        #remove self-recursive rules
+            new_nonterminals = initial_left_corner[non_terminal][0]
+            new_terminals = initial_left_corner[non_terminal][1]
 
-        intersection = [val for val in imm_left_corner if val in non_terminals]
+            my_nonterminals.remove(non_terminal)
+            my_resolved_nonterminals.append(non_terminal)
+            for n in new_nonterminals: my_nonterminals.append(n)
+            for n in new_terminals: my_terminals.append(n)
 
-        #print "imm_left corner"
-        #pprint.pprint(imm_left_corner)
-        #print "non terminals"
-        #pprint.pprint(non_terminals)
+            #remove previously resolved nonterminals
+            for nt in my_resolved_nonterminals:
+                if nt in my_nonterminals:
+                    my_nonterminals.remove(nt)
 
-        #print "LHS " + LHS
-        #print "intersections"
-        #pprint.pprint(intersection)
-
-        while(len(intersection) > 0):
-            non_terminal = intersection[0]
-            if not non_terminal in left_corner_table.keys():
-                #don't follow recursive rules, TODO will this find triangles?
-                print non_terminal
-                self.add_left_corner_for_rule(non_terminal, left_corner_table,
-                                              non_terminals)
-
-            intersection.remove(non_terminal)
-            imm_left_corner.remove(non_terminal)
-                #remove non terminal
-            imm_left_corner += left_corner_table[non_terminal]
-                #add equivalent terminals
-
-        left_corner_table[LHS] = imm_left_corner
-
-
-
-    #gets the first symbol of each expansion for this LHS
-    #list may contain terminals and nonterminals
-    def get_immediate_left_corner(self, LHS):
-        #rules_with_LHS = filter(lambda x: x.get_LHS() == LHS, self.rule_table)
+    # returns a list of nonterminals in the left corner of this LHS's rules
+    # and a list of terminals
+    def get_immediate_left_corner(self, LHS, non_terminals):
         rules_with_LHS = self.rule_table[LHS]
-        immediate_left_corner = map(lambda x: x.get_RHS()[0], rules_with_LHS)
-        return immediate_left_corner
+        my_terminals = []
+        my_nonterminals = []
+        for rule in rules_with_LHS:
+            left_corner = rule.get_RHS()[0]
+            if left_corner in non_terminals:
+                my_nonterminals.append(left_corner)
+            else:
+                my_terminals.append(left_corner)
+        return my_nonterminals, my_terminals
 
 
 
@@ -434,7 +438,7 @@ def main():
 
     f2 = open(sentence_filename, 'r')
     for sentence in f2:
-        print earley.parse(sentence.split())
+        print str(earley.parse(sentence.split())).lower() # print 'true' instead of 'True'
 
 if __name__ == "__main__":
     main()

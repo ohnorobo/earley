@@ -1,0 +1,15 @@
+
+generate.py - takes in a grammar file and generates n sentences
+
+earley.py - takes a grammar and a list of sentences, 
+    return True for correctly parsed sentences and False for incorrect ones
+
+grammarX.txt - a grammar file
+    grammar1.txt - the supplied grammar
+    grammar2.txt - grammar1 with modified probabilities
+    grammar3.txt - grammar2 expanded to a few more syntactic phenomena
+    grammar4.txt - a grammar designed to make legal but difficult-to-parse sentences
+
+1.a.txt - generated sentences
+
+1.b.txt - generated sentences with modified probabilities
