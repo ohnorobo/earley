@@ -44,42 +44,42 @@
 # tv_pp         # verb transitive prepositional phrase
 
 
-1 ROOT  S
-1 S pNP pVP .
-1 S sNP sVP .
+1 ROOT	S
+1 S	pNP pVP .
+1 S	sNP sVP .
 
-1 NP    pNP
-1 NP    sNP
+1 NP	pNP
+1 NP	sNP
 
-8 sNP   noun_sg
-1 sNP   adjP sNP
-1 sNP   noun_mass
+8 sNP	noun_sg
+1 sNP	adjP sNP
+1 sNP	noun_mass
 
-8 pNP   noun_pl
-1 pNP   adjP pNP
+8 pNP	noun_pl
+1 pNP	adjP pNP
 
-1 adjP  adj_itr
-1 adjP  adj_itr_comp
-1 adjP  adj_itr_sup
-
-
-8 sVP   iv_finsg
-8 sVP   tv_finsg NP
-1 sVP   advP sVP
-
-8 pVP   iv_infpl
-8 pVP   tv_infpl NP
-1 pVP   advP pVP
-
-1 advP  adv
-1 advP  adv_comp
-1 advP  adv_sup
+1 adjP	adj_itr
+1 adjP	adj_itr_comp
+1 adjP	adj_itr_sup
 
 
+8 sVP	iv_finsg
+8 sVP	tv_finsg NP
+1 sVP	advP sVP
 
-1 DET   the
-1 DET   this
-1 DET   that
+8 pVP	iv_infpl
+8 pVP	tv_infpl NP
+1 pVP	advP pVP
+
+1 advP	adv
+1 advP	adv_comp
+1 advP	adv_sup
+
+
+
+1 DET	the
+1 DET	this
+1 DET	that
 
 
 1 adj_itr	Fahrenheit

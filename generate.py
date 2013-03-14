@@ -2,6 +2,7 @@
 
 import sys, string, re, pprint, random
 
+sys.setrecursionlimit(20000)
 
 #rules are of the format
 #LHS : [(RHS1, w1),  (RHS2, w2) ...]

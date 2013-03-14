@@ -17,7 +17,7 @@
 #% not, see http://www.gnu.org/licenses/.
 
 ### word classes
-# adj_itr       # adjective intransitive 
+# adj_itr       # adjective intransitive
 # adj_itr_comp  # adjective intransitive comparable
 # adj_itr_sup   # adjective intransitive superlative
 # adj_tr        # adjective transitive
@@ -28,7 +28,7 @@
 # adv_sup       # adverb superlative
 # dv_finsg      # verb direct-obj finite singular
 # dv_infpl      # verb direct-obj infinite plural
-# dv_pp         # verb direct-obj prepositional phrase
+# dv_pp         # verb direct-obj past participle
 # iv_finsg      # verb intransitive finite singular
 # iv_infpl      # verb intransitive infinite plural
 # mn_pl         # measurement plural ##unused
@@ -41,82 +41,185 @@
 # prep          # preposition
 # tv_finsg      # verb transitive finite singular
 # tv_infpl      # verb transitive infinite plural
-# tv_pp         # verb transitive prepositional phrase
-
-
-1 ROOT  S
-1 S pNP pVP .
-1 S sNP sVP .
-
-1 NP    pNP
-1 NP    sNP
-
-
-.2 NP    NP CONJ NP
-.2 VP    VP CONJ VP
+# tv_pp         # verb transitive past participle
 
 
 
-1 CP    COMP S
+#####ROOT
 
-1 sNP   sDET sNP'
-8 sNP'   noun_sg
-1 sNP'   adjP sNP'
-1 sNP'   noun_mass
-.1 sNP'  sNP' RC
-
-1 pNP   pNP'
-1 pNP   pDET pNP'
-8 pNP'   noun_pl
-1 pNP'   adjP pNP'
-.1 sNP'  pNP' RC
-
-1 adjP  adj_itr
-1 adjP  adj_itr_comp
-1 adjP  adj_itr_sup
+1 ROOT	S
 
 
 
-1 sVP   MODAL pVP'  #verbs become plural after a modal
-1 sVP   sVP'
 
-8 sVP'   iv_finsg
-8 sVP'   tv_finsg NP
-8 sVP'   dv_finsg NP NP
-2 sVP'   sadvP sVP'
-4 sVP'  sVP' PP
+#####S
 
+10 S	S' .
+5 S	PP S' .  #topicalization
 
-1 pVP   MODAL pVP'
-1 pVP   pVP'
-
-8 pVP'   iv_infpl
-8 pVP'   tv_infpl NP
-8 pVP'   dv_infpl NP NP
-2 pVP'   padvP pVP'
-4 pVP'  pVP' PP
-
-1 sadvP  adv
-1 sadvP  adv_comp
-1 sadvP  adv_sup
-
-1 padvP  adv
-#1 padvP  adv_comp
-#1 padvP  adv_sup
+1 S'	pNP pVP
+1 S'	sNP sVP
 
 
-1 PP  P NP
-1 PP  prep NP
 
+#copular constructions
+# this is a hack because I don't want to do classes for person or number
+
+.1 S	I am NP .
+.1 S	you are NP .
+.1 S	he is NP .
+.1 S	she is NP .
+.1 S	it is NP .
+.1 S	we are NP .
+.1 S	they are NP .
+
+.1 S	sNP is NP .
+.1 S	pNP are NP .
+
+.1 S	there is NP .
+.1 S	there was NP .
+
+#copular questions
+
+.1 S	am I NP ?
+.1 S	are you NP ?
+.1 S	is he NP ?
+.1 S	is she NP ?
+.1 S	is it NP ?
+.1 S	are we NP ?
+.1 S	are they NP ?
+
+.1 S	is sNP NP ?
+.1 S	are pNP NP ?
+
+1 S	MODAL sNP pVP' ?
+1 S	MODAL pNP pVP' ?
+
+
+##wh questions
+## who/what/where/when/why/how
+
+10 S	WH MODAL sNP pVP' ?
+10 S	WH MODAL pNP pVP' ?
+
+1 S	WH am I ?
+1 S	WH are you ?
+1 S	WH is she ?
+1 S	WH is he ?
+1 S	WH is it ?
+1 S	WH are we ?
+1 S	WH are they ?
+
+
+# passives
+
+1 S	sNP was tv_finsg
+1 S	pNP were tv_finsg
+1 S	sNP was dv_finsg NP
+1 S	pNP were dv_finsg NP
+
+
+##### some top-level stuff for nps/vps
+
+1 NP	pNP
+1 NP	sNP
+
+.1 pNP	listNP   #any plural noun can go to a list
+1 listNP	NP , listNP
+2 listNP	NP and NP
+
+1 VP	sVP
+1 VP	pVP
+
+.2 NP	NP CONJ NP
+.2 VP	VP CONJ VP
+.2 VP	VP but VP   #but generally only works for VPs not NPs
+
+
+#####CP
+
+
+1 CP	COMP S'
+
+
+#####NP
+
+1 sNP	sDET sNP'
+.1 sNP	sDET sNP''
+
+.1 sNP	sDET adjP sNP'
+.1 sNP	sDET adjP sNP''
+
+8 sNP'	noun_sg
+1 sNP'	adjP sNP'
+1 sNP'	noun_mass
+1 sNP''	sNP' RC
+
+
+
+1 pNP	pNP'
+
+.1 pNP   sDET adjP pNP'
+.1 pNP   sDET adjP pNP''
+
+.1 pNP	pNP'' #double bar for reasons (only allowing 1 rel clause)
+1 pNP	pDET pNP'
+.1 pNP	pDET pNP''
+8 pNP'	noun_pl
+1 pNP'	adj_itr pNP'
+1 pNP''	pNP' RC
+
+1 adjP	adj_itr
+1 adjP	adj_itr_comp
+1 adjP	adj_itr_sup
 
 #relative clauses (for NPs)
-1 RC  REL VP 
+1 RC	REL VP
 
 #relativizer
-1 REL   who
-1 REL   that
+1 REL	who
+1 REL	that
 #I don't want to add which, etc. because I don't have the right noun distinctions
-#these two are prety generic
+#these two are pretty generic
+
+
+
+#####VP
+
+1 sVP	MODAL pVP'  #verbs become plural after a modal
+1 sVP	sVP'
+
+8 sVP'	iv_finsg
+8 sVP'	tv_finsg NP
+#8 sVP'	tv_pp NP
+8 sVP'	dv_finsg NP NP
+#8 sVP'	dv_pp NP NP
+2 sVP'	sadvP sVP'
+4 sVP'	sVP' PP
+
+
+1 pVP	MODAL pVP'
+1 pVP	pVP'
+
+8 pVP'	iv_infpl
+8 pVP'	tv_infpl NP
+#8 pVP'	tv_pp NP
+8 pVP'	dv_infpl NP NP
+#8 pVP'	dv_pp NP NP
+2 pVP'	padvP pVP'
+4 pVP'	pVP' PP
+
+1 sadvP	adv
+1 sadvP	adv_comp
+1 sadvP	adv_sup
+
+1 padvP	adv
+#1 padvP	adv_comp
+#1 padvP	adv_sup
+
+
+1 PP	P NP
+1 PP	prep NP
 
 
 
@@ -126,98 +229,101 @@
 ## some taken from here:
 ## http://www.flesl.net/Vocabulary/Single-word_Lists/function_word_list.php
 
+1 WH	who
+1 WH	what
+1 WH	when
+1 WH	where
+1 WH	why
+1 WH	how
 
-1 sDET   the
-1 sDET   this
-1 sDET   that
-1 sDET  one
-1 sDet  a
-1 sDET  POSS
+1 sDET	the
+1 sDET	this
+1 sDET	that
+1 sDET	one
+1 sDet	a
+1 sDET	POSS
 
-1 pDET  the
-1 pDET  these
-1 pDET  those
-1 pDET  two
-1 pDET  three
-1 pDET  four
-1 pDET  five
-1 pDET  six
-1 pDET  seven
-1 pDET  eight
-1 pDET  nine
-1 pDET  ten
-1 pDET  POSS
+1 pDET	the
+1 pDET	these
+1 pDET	those
+1 pDET	two
+1 pDET	three
+1 pDET	four
+1 pDET	five
+1 pDET	six
+1 pDET	seven
+1 pDET	eight
+1 pDET	nine
+1 pDET	ten
+1 pDET	POSS
 
-1 POSS  my
-1 POSS  your
-1 POSS  his
-1 POSS  her
-1 POSS  their
-1 POSS  our
-1 POSS  NP 's
-
-
-
-1 COMP  that
-
-1 CONJ  and
-#1 CONJ  but
-#1 CONJ  or
+1 POSS	my
+1 POSS	your
+1 POSS	his
+1 POSS	her
+1 POSS	their
+1 POSS	our
+1 POSS	NP 's   #this might be a problem because of the spacing
 
 
-1 P  about
-1 P  across
-1 P  against
-1 P  along
-1 P  around
-1 P  at
-1 P  behind
-1 P  beside
-1 P  by
-1 P  despite
-1 P  down
-1 P  during
-1 P  for
-1 P  from
-1 P  in
-1 P  inside
-1 P  into
-1 P  near
-1 P  of
-1 P  off
-1 P  on
-1 P  into
-1 P  over
-1 P  through
-1 P  to
-1 P  toward
-1 P  with
-1 P  within
-1 P  without
 
-2 pMODAL    is
-1 PMODAL    MODAL
+1 COMP	that
 
-2 sMODAL    are
-1 pMODAL    MODAL
+1 CONJ	and
+#1 CONJ	but
+1 CONJ	or
 
-1 MODAL   can
-1 MODAL   may
-1 MODAL   will
-1 MODAL   shall
-1 MODAL   should
-1 MODAL   could
-1 MODAL   might
-1 MODAL   would
-1 MODAL   must
 
-#to-be verbs
-1 1sMODAL   am
-1 1pMODAL   are
-1 2sMODAL   are
-1 2pMODAL   are
-1 3sMODAL   is
-1 3pMODAL   are
+1 P	about
+1 P	across
+1 P	against
+1 P	along
+1 P	around
+1 P	at
+1 P	behind
+1 P	beside
+1 P	by
+1 P	despite
+1 P	down
+1 P	during
+1 P	for
+1 P	from
+1 P	in
+1 P	inside
+1 P	into
+1 P	near
+1 P	of
+1 P	off
+1 P	on
+1 P	into
+1 P	over
+1 P	through
+1 P	to
+1 P	toward
+1 P	with
+1 P	within
+1 P	without
+
+2 pMODAL	is
+#1 pMODAL	was #passives
+1 pMODAL	had not  #negation
+1 PMODAL	MODAL
+
+2 sMODAL	are
+1 sMODAL	did not  #negation
+1 sMODAL	MODAL
+
+#okay, these aren't all really modals, but whatever. VP head things.
+1 MODAL	can
+1 MODAL	may
+1 MODAL	will
+1 MODAL	shall
+1 MODAL	should
+1 MODAL	could
+1 MODAL	might
+1 MODAL	would
+1 MODAL	must
+
 
 
 #########lexical items from attempto
@@ -31827,7 +31933,6 @@
 1 noun_mass	metre
 1 noun_mass	metrication
 1 noun_mass	mettle
-1 noun_mass	mi
 1 noun_mass	mica
 1 noun_mass	microbiology
 1 noun_mass	microelectronics
