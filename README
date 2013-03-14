@@ -1,14 +1,20 @@
 
 generate.py - takes in a grammar file and generates n sentences
+    timing - approx 15 seconds to generate 10 sentences in a ~10,000 line grammar
 
 earley.py - takes a grammar and a list of sentences, 
     return True for correctly parsed sentences and False for incorrect ones
+    timing - approx 5 sentences to parse 10 sentences in a ~10,000 line grammar
 
 grammarX.txt - a grammar file
     grammar1.txt - the supplied grammar
     grammar2.txt - grammar1 with modified probabilities
     grammar3.txt - grammar2 expanded to a few more syntactic phenomena
     grammar4.txt - a grammar designed to make legal but difficult-to-parse sentences
+        this grammar tends to produce very garden path-y sentences
+        if you uncomment line 47 of generate.py it will product a bracketed sentences
+        to aid human readers
+        if you uncomment line 62 it wil output all the rewrite rules it uses in order
 
 1.a.txt - generated sentences
 

@@ -44,7 +44,7 @@ def parse_grammar_file(filename):
 #creates a new sentence using rewrites
 def create_sentence():
     sentence = rewrite_node("ROOT")
-    pprint.pprint(sentence)
+    #pprint.pprint(sentence)
     return flatten(sentence)
 
 
@@ -112,4 +112,4 @@ parse_grammar_file(grammar_filename)
 for i in range(int(number_of_words)):
     sentence = create_sentence()
     #print "\n# sentence"
-    pprint.pprint( string.join(sentence, " ") )
+    print string.join(sentence, " ")

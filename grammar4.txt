@@ -54,30 +54,32 @@
 
 #####S
 
-10 S	S' .
-5 S	PP S' .  #topicalization
+10 S	S' PUNCT
+5 S	PP S' PUNCT  #topicalization
 
 1 S'	pNP pVP
 1 S'	sNP sVP
 
+.1 PUNCT	!
+1 PUNCT	.
 
 
 #copular constructions
 # this is a hack because I don't want to do classes for person or number
 
-.05 S	I am NP .
-.05 S	you are NP .
-.05 S	he is NP .
-.05 S	she is NP .
-.05 S	it is NP .
-.05 S	we are NP .
-.05 S	they are NP .
+.05 S	I am NP PUNCT
+.05 S	you are NP PUNCT
+.05 S	he is NP PUNCT
+.05 S	she is NP PUNCT
+.05 S	it is NP PUNCT
+.05 S	we are NP PUNCT
+.05 S	they are NP PUNCT
 
-.1 S	sNP is NP .
-.1 S	pNP are NP .
+.1 S	sNP is NP PUNCT
+.1 S	pNP are NP PUNCT
 
-.1 S	there is NP .
-.1 S	there was NP .
+.1 S	there is NP PUNCT
+.1 S	there was NP PUNCT
 
 #copular questions
 
@@ -99,24 +101,24 @@
 ##wh questions
 ## who/what/where/when/why/how
 
-10 S	WH MODAL sNP pVP' ?
-10 S	WH MODAL pNP pVP' ?
+1 S	WH MODAL sNP pVP' ?
+1 S	WH MODAL pNP pVP' ?
 
-1 S	WH am I ?
-1 S	WH are you ?
-1 S	WH is she ?
-1 S	WH is he ?
-1 S	WH is it ?
-1 S	WH are we ?
-1 S	WH are they ?
+.5 S	WH am I ?
+.5 S	WH are you ?
+.5 S	WH is she ?
+.5 S	WH is he ?
+.5 S	WH is it ?
+.5 S	WH are we ?
+.5 S	WH are they ?
 
 
 # passives
 
-1 S	sNP was tv_finsg
-1 S	pNP were tv_finsg
-1 S	sNP was dv_finsg NP
-1 S	pNP were dv_finsg NP
+1 S	sNP was tv_finsg PUNCT
+1 S	pNP were tv_finsg PUNCT
+1 S	sNP was dv_finsg NP PUNCT
+1 S	pNP were dv_finsg NP PUNCT
 
 
 ##### some top-level stuff for nps/vps
