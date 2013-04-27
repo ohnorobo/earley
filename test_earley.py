@@ -4,14 +4,9 @@ import unittest
 from earley import Rule, EarleyParser
 
 
-# command line tests
-'''
-./earley.py grammar1.txt the president ate the pickle .
-'''
-
-
 
 class TestEarley(unittest.TestCase):
+    ''' Tests for earley.py '''
 
     def test_simple_grammar(self):
 

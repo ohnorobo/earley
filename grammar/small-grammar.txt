@@ -9,16 +9,6 @@
 #    - preterminals are capitalized     (Noun)
 #    - other nonterminals are all-caps  (NP)
 # 
-# This convention just makes grammars more readable to humans.  Thus:
-#
-#    - When *you* are writing grammars in questions 3 and 6, you should 
-#      follow this convention unless you have a good reason not to.  
-#
-#    - But your *program* should still work with grammars that don't 
-#      follow this convention.  It should not pay any attention to
-#      upper/lower case.  From your program's point of view, 
-#      if there is at least one rule for rewriting a symbol, then
-#      that symbol is a nonterminal and should be rewritten.
 #######################
 
 # Rules for creating full sentences.
@@ -58,33 +48,21 @@
 
 1 Noun	Adj Noun
 
-# Vocabulary.  Your program can see that "ate" is a terminal
-# symbol because there exists no rule for rewriting it.
-# Any symbol that can rewrite as a terminal (or a string of 
-# terminals, like "chief of staff") is called a "preterminal."  Notice 
-# that a preterminal is a special kind of nonterminal.
-
 #transitive
-1 VerbTr	ate
-1 VerbTr	wanted
-1 VerbTr	kissed
-1 VerbTr	understood
+1 VerbTr	played with
+1 VerbTr	printed
 1 VerbTr	pickled
 1 VerbTr	perplexed
 
 #transitive and can take a CP subject
 1 CVerbTr	perplexed
-1 CVerbTr	enlightened
-1 CVerbTr	frightened
 
 #transitive and takes CP
-1 VerbTrC	understood
-1 VerbTrC	wished
-1 VerbTrC	said
-1 VerbTrC	thought
+1 VerbTrC	pleaded
+1 VerbTrC	posited
 
 #intransitive
-1 VerbIn	smiled
+1 VerbIn	played
 
 1 Det	the
 1 Det	a
@@ -95,19 +73,17 @@
 1 Conj	but
 
 1 Noun	president
-1 Noun	sandwich
+1 Noun	poppy
 1 Noun	pickle
-1 Noun	chief of staff
-1 Noun	floor
-1 Noun	sandwich
+1 Noun	platitude
+1 Noun	place
+1 Noun	politician
 
 #proper noun
-1 PrNoun	Alex
-1 PrNoun	Tom
+1 PrNoun	Pru
 
-
-1 Adj	fine
-1 Adj	delicious
+1 Adj	pretty
+1 Adj	porous
 1 Adj	perplexed
 1 Adj	pickled
 
